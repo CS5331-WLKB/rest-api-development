@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from passlib.apps import custom_app_context as pwd_context
 
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase+string.digits) for x in xrange(32))
 
 class User(Base):
     __tablename__='user'
