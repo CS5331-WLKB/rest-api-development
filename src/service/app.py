@@ -14,14 +14,11 @@ from datetime import date
 auth = HTTPBasicAuth()
 
 # Build database connection
-engine = create_engine('sqlite"///secretDiary,db')
+engine = create_engine('sqlite:///secretDiary.db')
 Base.metadata.bind=engine
-DBSession = sessionmaker(bind=enigne)
+DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-# clear up token table at every start
-session.query(token).delete()
-session.commit()
 
 app = Flask(__name__)
 # Enable cross origin sharing for all endpoints
@@ -39,7 +36,7 @@ def verify_password(username,password):
     g.user=user
     return True
 
-@app.route("/users/register",['POST'])
+@app.route("/users/register",methods=['POST'])
 def user_registration():
     if request.method == 'POST':
         username=request.json.get('username')
@@ -69,7 +66,7 @@ def get_token():
     session.commit()
     return jsonify({'status':True, 'token':temp_uuid}), 200#
     
-@app.route('/users/authenticate',['POST'])
+@app.route('/users/authenticate',methods=['POST'])
 def get_authentication():
     if request.method=='POST':
         username = request.json.get('username')
@@ -79,7 +76,7 @@ def get_authentication():
         else:
             return jsonify({'status': False}), 200#
 
-@app.route('/users/expire',['POST'])
+@app.route('/users/expire',methods=['POST'])
 def expire_token():
     if request.method=='POST':
         try:
@@ -92,14 +89,14 @@ def expire_token():
         except:
             return jsonify({'status':False}),200#
 
-@app.route('/users',['POST'])
+@app.route('/users',methods=['POST'])
 @auth.login_required
 def get_user():
-    if request.method='POST':
+    if request.method == 'POST':
         curr_uuid = request.json.get('token')
         target = session.query(Token).filter_by(uuid = curr_uuid).first()
         if target.expired:
-            return jsonify({'status': False,'Invalid authentication token.'}),200#
+            return jsonify({'status': False,'error':'Invalid authentication token.'}),200#
         else:
             username = g.user.username
             curr_user = session.query(User).filter_by(username=username).first()
@@ -120,7 +117,7 @@ def get_secret_diary():
     return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200#
     
         
-@app.route('/diary', method=['GET','POST'])
+@app.route('/diary', methods=['GET','POST'])
 def get_diary():
     if request.method == 'GET':
         diaryList = session.query(Diary).filter_by(public=True)
@@ -133,7 +130,7 @@ def get_diary():
         get_secret_diary()
 
 
-@app.route('/diary/create',['POST'])
+@app.route('/diary/create',methods=['POST'])
 @auth.login_required
 def create_diary():
     if request.method == 'POST':
@@ -151,10 +148,10 @@ def create_diary():
         else:
             return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
 
-@app.route('/diary/delete',['POST'])
+@app.route('/diary/delete',methods=['POST'])
 @auth.login_required
 def delete_diary():
-    if request.mthod='POST':
+    if request.method=='POST':
         curr_token = request.json.get('token')
         target= session.query(Token).filter_by(uuid=curr_token).first()
         if not target.expire:
@@ -166,10 +163,10 @@ def delete_diary():
         else:
             return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
 
-@app.route('/diary/permission',['POST'])
+@app.route('/diary/permission',methods=['POST'])
 @auth.login_required
 def change_permission():
-    if request.method='POST':
+    if request.method=='POST':
         curr_token = request.json.get('token')
         target = session.query(Token).filter_by(uuid=curr_token).first()
         if not target.expire:
