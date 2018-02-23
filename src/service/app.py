@@ -14,7 +14,7 @@ from datetime import date
 auth = HTTPBasicAuth()
 
 # Build database connection
-engine = create_engine('sqlite:///secretDiary.db')
+engine = create_engine('sqlite:///secretdiary.db')
 Base.metadata.bind=engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -25,19 +25,20 @@ app = Flask(__name__)
 CORS(app)
 
 # Remember to update this list
-ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members']
+ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register']
 
 
 @auth.verify_password
 def verify_password(username,password):
     user = session.query(User).filter_by(username=username).first()
     if not user or not user.verify_password(password):
-        return Fasle
+        return False
     g.user=user
     return True
 
 @app.route("/users/register",methods=['POST'])
 def user_registration():
+    print request.json
     if request.method == 'POST':
         username=request.json.get('username')
         password=request.json.get('password')
@@ -49,7 +50,6 @@ def user_registration():
             abort(400)
 
         if session.query(User).filter_by(username=username).first() is not None:
-            err = 'user already exist'
             return jsonify({'status':False,'error':'User already exists!'}),200#
         user = User(username=username, fullname=fullname,age=age)
         user.hash_password(password)
@@ -58,7 +58,6 @@ def user_registration():
 
         return jsonify({'status':True}),201#
 
-@auth.login_required
 def get_token():
     temp_uuid = str(uuid.uuid4())
     newToken = Token(uuid=temp_uuid,expired=False)
@@ -68,24 +67,26 @@ def get_token():
     
 @app.route('/users/authenticate',methods=['POST'])
 def get_authentication():
-    if request.method=='POST':
-        username = request.json.get('username')
-        password = request.json.get('password')
-        if verify_password(username,password):
-            get_token()
-        else:
-            return jsonify({'status': False}), 200#
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if verify_password(username,password):
+        return get_token()
+    else:
+        return jsonify({'status': False}), 200#
 
 @app.route('/users/expire',methods=['POST'])
 def expire_token():
     if request.method=='POST':
         try:
             temp_uuid = request.json.get('token')
-            target = session.query(token).filter_by(uuid=temp_uuid).first()
-            target.expired=True
-            session.add(target)
-            session.commit()
-            return jsonify({'status':True}),200#
+            target = session.query(Token).filter_by(uuid=temp_uuid).first()
+            if target:
+                target.expired=True
+                session.add(target)
+                session.commit()
+                return jsonify({'status':True}),200#
+            else:
+                return jsonify({'status':False}),200#
         except:
             return jsonify({'status':False}),200#
 
@@ -95,7 +96,7 @@ def get_user():
     if request.method == 'POST':
         curr_uuid = request.json.get('token')
         target = session.query(Token).filter_by(uuid = curr_uuid).first()
-        if target.expired:
+        if (not target) or target.expired:
             return jsonify({'status': False,'error':'Invalid authentication token.'}),200#
         else:
             username = g.user.username
@@ -107,10 +108,11 @@ def get_user():
 def get_secret_diary():
     curr_token = request.json.get('token')
     target = session.query(Token).filter_by(uuid=curr_token).first()
-    if not target.expire:
-        diaryList = session.query(Diary).filter_by(username=g.user.username)
-        if len(diaryList):
-            diaryList_serialized = [d.serialize() for d in diaryList]
+    if target and not target.expired:
+        diaryList = session.query(Diary).filter_by(author=g.user.username)
+        if diaryList.first():
+            print diaryList
+            diaryList_serialized = [d.serialize for d in diaryList.all()]
             return jsonify({'status': True, 'result':diaryList_serialized}), 201#
         else:
             return jsonify({'status': True, 'result':[]}), 201#
@@ -121,13 +123,14 @@ def get_secret_diary():
 def get_diary():
     if request.method == 'GET':
         diaryList = session.query(Diary).filter_by(public=True)
-        if len(diaryList):
-            diaryList_serialized = [d.serialize() for d in diaryList]
-            return jsonify({'status': True,'result':diaryList_serialized }),201#
+        if diaryList.first():
+            diaryList_serialized = [d.serialize for d in diaryList.all()]
+            
+            return jsonify({'status': True,'result':diaryList_serialized }),200#
         else:
-            return jsonify({'status': True, 'result': []}),201#
+            return jsonify({'status': True, 'result': []}),200#
     else:
-        get_secret_diary()
+        return get_secret_diary()
 
 
 @app.route('/diary/create',methods=['POST'])
@@ -137,11 +140,11 @@ def create_diary():
         curr_token = request.json.get('token')
         target= session.query(Token).filter_by(uuid=curr_token).first()
 
-        if not target.expire:
+        if target and not target.expired:
             title = request.json.get('title')
             public = request.json.get('public')
             text = request.json.get('text')
-            newDiary = Diary(title=title,public=public,text=text,author=g.user.username,publish_date=date.today().isoformat())
+            newDiary = Diary(title=title,author=g.user.username,publish_date=date.today(),public=public,text=text)
             session.add(newDiary)
             session.commit()
             return jsonify({'status': True}), 201#
@@ -154,9 +157,9 @@ def delete_diary():
     if request.method=='POST':
         curr_token = request.json.get('token')
         target= session.query(Token).filter_by(uuid=curr_token).first()
-        if not target.expire:
+        if target and not target.expired:
             curr_id = request.json.get('id')
-            d = session.query(Diary).filter_by(id=id).first()
+            d = session.query(Diary).filter_by(id=curr_id).first()
             session.delete(d)
             session.commit()
             return jsonify({'status': True}), 200#
@@ -169,11 +172,11 @@ def change_permission():
     if request.method=='POST':
         curr_token = request.json.get('token')
         target = session.query(Token).filter_by(uuid=curr_token).first()
-        if not target.expire:
+        if target and not target.expired:
             public = request.json.get('public')
             id = request.json.get('id')
             d = session.query(Diary).filter_by(id=id).first()
-            d.permission=public
+            d.public=public
             session.add(d)
             session.commit()
             return jsonify({'status':True}), 200#
