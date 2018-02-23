@@ -23,17 +23,15 @@ class User(Base):
     def verify_password(self,password):
         return pwd_context.verify(password,self.password_hash)
 
-    
 class Diary(Base):
     __tablename__='diary'
 
     id=Column(Integer,primary_key=True)
     title=Column(String(100),nullable=False)
-    author=Column(String(32),ForeignKey('user.username'),index=True)
+    author=Column(String(32),nullable=False)
     publish_date=Column(Date,nullable=False)
     public = Column(Boolean,nullable=False)
     text=Column(String,nullable=False)
-    user=relationship(User)
     
     @property
     def serialize(self):
@@ -41,7 +39,7 @@ class Diary(Base):
             'id':self.id,
             'title':self.title,
             'author': self.author,
-            'publish_date':self.publish_date,
+            'publish_date':self.publish_date.isoformat(),
             'public': self.public,
             'text': self.text
         }
