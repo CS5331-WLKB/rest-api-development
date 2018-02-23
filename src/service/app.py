@@ -58,9 +58,9 @@ def user_registration():
 
         return jsonify({'status':True}),201#
 
-def get_token():
+def get_token(username):
     temp_uuid = str(uuid.uuid4())
-    newToken = Token(uuid=temp_uuid,expired=False)
+    newToken = Token(uuid=temp_uuid,expired=False,username=username)
     session.add(newToken)
     session.commit()
     return jsonify({'status':True, 'token':temp_uuid}), 200#
@@ -70,7 +70,7 @@ def get_authentication():
     username = request.json.get('username')
     password = request.json.get('password')
     if verify_password(username,password):
-        return get_token()
+        return get_token(username)
     else:
         return jsonify({'status': False}), 200#
 
@@ -91,7 +91,7 @@ def expire_token():
             return jsonify({'status':False}),200#
 
 @app.route('/users',methods=['POST'])
-@auth.login_required
+#@auth.login_required
 def get_user():
     if request.method == 'POST':
         curr_uuid = request.json.get('token')
@@ -99,19 +99,17 @@ def get_user():
         if (not target) or target.expired:
             return jsonify({'status': False,'error':'Invalid authentication token.'}),200#
         else:
-            username = g.user.username
+            username =target.username
             curr_user = session.query(User).filter_by(username=username).first()
             return jsonify({'status':True, 'username':username, 'fullname': curr_user.fullname, 'age': curr_user.age}),200#
 
-
-@auth.login_required
+#@auth.login_required
 def get_secret_diary():
     curr_token = request.json.get('token')
     target = session.query(Token).filter_by(uuid=curr_token).first()
     if target and not target.expired:
-        diaryList = session.query(Diary).filter_by(author=g.user.username)
+        diaryList = session.query(Diary).filter_by(author=target.username)
         if diaryList.first():
-            print diaryList
             diaryList_serialized = [d.serialize for d in diaryList.all()]
             return jsonify({'status': True, 'result':diaryList_serialized}), 201#
         else:
@@ -134,7 +132,7 @@ def get_diary():
 
 
 @app.route('/diary/create',methods=['POST'])
-@auth.login_required
+#@auth.login_required
 def create_diary():
     if request.method == 'POST':
         curr_token = request.json.get('token')
@@ -144,7 +142,7 @@ def create_diary():
             title = request.json.get('title')
             public = request.json.get('public')
             text = request.json.get('text')
-            newDiary = Diary(title=title,author=g.user.username,publish_date=date.today(),public=public,text=text)
+            newDiary = Diary(title=title,author=target.username,publish_date=date.today(),public=public,text=text)
             session.add(newDiary)
             session.commit()
             return jsonify({'status': True}), 201#
@@ -152,7 +150,7 @@ def create_diary():
             return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
 
 @app.route('/diary/delete',methods=['POST'])
-@auth.login_required
+#@auth.login_required
 def delete_diary():
     if request.method=='POST':
         curr_token = request.json.get('token')
@@ -167,7 +165,7 @@ def delete_diary():
             return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
 
 @app.route('/diary/permission',methods=['POST'])
-@auth.login_required
+#@auth.login_required
 def change_permission():
     if request.method=='POST':
         curr_token = request.json.get('token')
