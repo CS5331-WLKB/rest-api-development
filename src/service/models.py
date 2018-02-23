@@ -49,6 +49,8 @@ class Token(Base):
     id = Column(Integer,primary_key=True)
     uuid=Column(String, index=True,nullable=False)
     expired=Column(Boolean,nullable=False)
+    username=Column(String(32),ForeignKey('user.username'))
+    user=relationship(User)
 
 engine = create_engine('sqlite:///secretdiary.db')
 Base.metadata.create_all(engine)
