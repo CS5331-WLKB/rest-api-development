@@ -25,7 +25,9 @@ app = Flask(__name__)
 CORS(app)
 
 # Remember to update this list
-ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register']
+ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register',
+                 '/users/expire','users/authenticate','/users','/diary (get)','/diary(post)',
+                 '/diary/create','/diary/delete','/diary/permission']
 
 
 @auth.verify_password
@@ -109,11 +111,8 @@ def get_secret_diary():
     target = session.query(Token).filter_by(uuid=curr_token).first()
     if target and not target.expired:
         diaryList = session.query(Diary).filter_by(author=target.username)
-        if diaryList.first():
-            diaryList_serialized = [d.serialize for d in diaryList.all()]
-            return jsonify({'status': True, 'result':diaryList_serialized}), 201#
-        else:
-            return jsonify({'status': True, 'result':[]}), 201#
+        diaryList_serialized = [d.serialize for d in diaryList.all()]
+        return jsonify({'status': True, 'result':diaryList_serialized}), 201#
     return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200#
     
         
@@ -121,12 +120,8 @@ def get_secret_diary():
 def get_diary():
     if request.method == 'GET':
         diaryList = session.query(Diary).filter_by(public=True)
-        if diaryList.first():
-            diaryList_serialized = [d.serialize for d in diaryList.all()]
-            
-            return jsonify({'status': True,'result':diaryList_serialized }),200#
-        else:
-            return jsonify({'status': True, 'result': []}),200#
+        diaryList_serialized = [d.serialize for d in diaryList.all()]            
+        return jsonify({'status': True,'result':diaryList_serialized }),200#
     else:
         return get_secret_diary()
 
@@ -174,10 +169,13 @@ def change_permission():
             public = request.json.get('public')
             id = request.json.get('id')
             d = session.query(Diary).filter_by(id=id).first()
-            d.public=public
-            session.add(d)
-            session.commit()
-            return jsonify({'status':True}), 200#
+            if d:
+                d.public=public
+                session.add(d)
+                session.commit()
+                return jsonify({'status':True}), 200#
+            else:
+                return jsonify({'status':False,'error': 'Diary does not exist'}), 200#
         else:
             return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
 
