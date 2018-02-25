@@ -4,39 +4,18 @@ import API_Endpoints from '../utils/API_Endpoints';
 import { PageHeader, Panel } from 'react-bootstrap';
 import Diaries from './Diaries.js';
 import FontAwesome from 'react-fontawesome';
+import { connect } from 'react-redux';
+import { fetchItems } from '../actions';
 
 class Home extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoadingMembers: true,
-      members: [],
-      isLoadingPublicDiaries: true,
-      publicDiaries: []
-    };
-  }
-
   componentDidMount() {
-    this.getMembers();
-    this.getPublicDiaries();
-  }
-
-  getMembers() {
-    this.setState({
-      isLoadingMembers: true
-    });
-    ajax_get(API_Endpoints.get_members, data => {
-      this.setState({
-        isLoadingMembers: false
-      });
-      if (data.status) {
-        this.setState({ members: data.result });
-      }
-    });
+    const { dispatch } = this.props;
+    dispatch(fetchItems('members'));
+    dispatch(fetchItems('public-diaries'));
   }
 
   renderMembers() {
-    const { isLoadingMembers, members } = this.state;
+    const { isLoadingMembers, members } = this.props;
     if (isLoadingMembers) {
       return (
         <span>
@@ -54,22 +33,8 @@ class Home extends Component {
     }
   }
 
-  getPublicDiaries() {
-    this.setState({
-      isLoadingPublicDiaries: true
-    });
-    ajax_get(API_Endpoints.get_public_diaries, data => {
-      this.setState({
-        isLoadingPublicDiaries: false
-      });
-      if (data.status) {
-        this.setState({ publicDiaries: data.result });
-      }
-    });
-  }
-
   render() {
-    const { isLoadingPublicDiaries, publicDiaries } = this.state;
+    const { isLoadingPublicDiaries, publicDiaries } = this.props;
 
     return (
       <div>
@@ -91,20 +56,30 @@ class Home extends Component {
             />
           </Panel.Body>
         </Panel>
-        <Panel>
-          <Panel.Heading>
-            <Panel.Title componentClass="h3">My Diaries</Panel.Title>
-          </Panel.Heading>
-          <Panel.Body>
-            <Diaries
-              isLoading={isLoadingPublicDiaries}
-              diaries={publicDiaries}
-            />
-          </Panel.Body>
-        </Panel>
       </div>
     );
   }
 }
 
-export default Home;
+function mapStateToProps(state) {
+  const { members: allMembers, publicDiaries: allPublicDiaries } = state;
+  const { isFetching: isLoadingMembers, items: members } = allMembers || {
+    isFetching: true,
+    items: []
+  };
+  const {
+    isFetching: isLoadingPublicDiaries,
+    items: publicDiaries
+  } = allPublicDiaries || {
+    isFetching: true,
+    items: []
+  };
+  return {
+    isLoadingMembers,
+    members,
+    isLoadingPublicDiaries,
+    publicDiaries
+  };
+}
+
+export default connect(mapStateToProps)(Home);

@@ -71,14 +71,14 @@ class Login extends Component {
           <Panel.Title componentClass="h3">Log In</Panel.Title>
         </Panel.Heading>
         <Panel.Body>
+          {error ? (
+            <Alert bsStyle="danger">{error}</Alert>
+          ) : message ? (
+            <Alert bsStyle="success">{message}</Alert>
+          ) : (
+            ''
+          )}
           <Form horizontal onSubmit={this.handleLogin.bind(this)}>
-            {error ? (
-              <Alert bsStyle="danger">{error}</Alert>
-            ) : message ? (
-              <Alert bsStyle="success">{message}</Alert>
-            ) : (
-              ''
-            )}
             <FormGroup controlId="formHorizontalUsername">
               <Col componentClass={ControlLabel} sm={2}>
                 Username
