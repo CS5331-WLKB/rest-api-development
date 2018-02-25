@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from flask import Flask, request,jsonify, abort, g
+from flask import Flask, request, jsonify, abort, g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask_cors import CORS
@@ -16,7 +16,7 @@ auth = HTTPBasicAuth()
 
 # Build database connection
 engine = create_engine('sqlite:///secretdiary.db')
-Base.metadata.bind=engine
+Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
@@ -31,15 +31,16 @@ ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register',
                  '/diary/create','/diary/delete','/diary/permission']
 
 
-@auth.verify_password
-def verify_password(username,password):
+# @auth.verify_password
+def verify_password(username, password):
     user = session.query(User).filter_by(username=username).first()
     if not user or not user.verify_password(password):
         return False
-    g.user=user
+    g.user = user
     return True
 
-@app.route("/users/register",methods=['POST'])
+
+@app.route("/users/register", methods=['POST'])
 def user_registration():
     print request.json
     if request.method == 'POST':
@@ -54,60 +55,67 @@ def user_registration():
             abort(400)
 
         if session.query(User).filter_by(username=username).first() is not None:
-            return jsonify({'status':False,'error':'User already exists!'}),200#
-        user = User(username=username, fullname=fullname,age=age)
+            return jsonify({'status': False, 'error': 'User already exists!'}), 200
+        user = User(username=username, fullname=fullname, age=age)
         user.hash_password(password)
         session.add(user)
         session.commit()
 
-        return jsonify({'status':True}),201#
+        return jsonify({'status': True}), 201
+
 
 def get_token(username):
     temp_uuid = str(uuid.uuid4())
-    newToken = Token(uuid=temp_uuid,expired=False,username=username)
+    newToken = Token(uuid=temp_uuid, expired=False, username=username)
     session.add(newToken)
     session.commit()
-    return jsonify({'status':True, 'token':temp_uuid}), 200#
-    
-@app.route('/users/authenticate',methods=['POST'])
+    return jsonify({'status': True, 'token': temp_uuid}), 200
+
+
+@app.route('/users/authenticate', methods=['POST'])
 def get_authentication():
     username = request.json.get('username')
     password = request.json.get('password')
-    if verify_password(username,password):
+    if verify_password(username, password):
         return get_token(username)
     else:
-        return jsonify({'status': False}), 200#
+        return jsonify({'status': False}), 200
 
-@app.route('/users/expire',methods=['POST'])
+
+@app.route('/users/expire', methods=['POST'])
 def expire_token():
-    if request.method=='POST':
+    if request.method == 'POST':
         try:
             temp_uuid = request.json.get('token')
             target = session.query(Token).filter_by(uuid=temp_uuid).first()
             if target:
-                target.expired=True
+                target.expired = True
                 session.add(target)
                 session.commit()
-                return jsonify({'status':True}),200#
+                return jsonify({'status': True}), 200
             else:
-                return jsonify({'status':False}),200#
+                return jsonify({'status': False}), 200
         except:
-            return jsonify({'status':False}),200#
+            return jsonify({'status': False}), 200
 
-@app.route('/users',methods=['POST'])
+
+@app.route('/users', methods=['POST'])
 #@auth.login_required
 def get_user():
     if request.method == 'POST':
         curr_uuid = request.json.get('token')
-        target = session.query(Token).filter_by(uuid = curr_uuid).first()
+        target = session.query(Token).filter_by(uuid=curr_uuid).first()
         if (not target) or target.expired:
-            return jsonify({'status': False,'error':'Invalid authentication token.'}),200#
+            return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
         else:
-            username =target.username
-            curr_user = session.query(User).filter_by(username=username).first()
-            return jsonify({'status':True, 'username':username, 'fullname': curr_user.fullname, 'age': curr_user.age}),200#
+            username = target.username
+            curr_user = session.query(User).filter_by(
+                username=username).first()
+            return jsonify({'status': True, 'username': username, 'fullname': curr_user.fullname, 'age': curr_user.age}), 200
 
-#@auth.login_required
+# @auth.login_required
+
+
 def get_secret_diary():
     curr_token = request.json.get('token')
     target = session.query(Token).filter_by(uuid=curr_token).first()
@@ -128,12 +136,12 @@ def get_diary():
         return get_secret_diary()
 
 
-@app.route('/diary/create',methods=['POST'])
+@app.route('/diary/create', methods=['POST'])
 #@auth.login_required
 def create_diary():
     if request.method == 'POST':
         curr_token = request.json.get('token')
-        target= session.query(Token).filter_by(uuid=curr_token).first()
+        target = session.query(Token).filter_by(uuid=curr_token).first()
 
         if target and not target.expired:
             # santinize diary content when creating diary
@@ -143,29 +151,31 @@ def create_diary():
             newDiary = Diary(title=title,author=target.username,publish_date=date.today(),public=public,text=text)
             session.add(newDiary)
             session.commit()
-            return jsonify({'status': True}), 201#
+            return jsonify({'status': True}), 201
         else:
-            return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
+            return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
-@app.route('/diary/delete',methods=['POST'])
+
+@app.route('/diary/delete', methods=['POST'])
 #@auth.login_required
 def delete_diary():
-    if request.method=='POST':
+    if request.method == 'POST':
         curr_token = request.json.get('token')
-        target= session.query(Token).filter_by(uuid=curr_token).first()
+        target = session.query(Token).filter_by(uuid=curr_token).first()
         if target and not target.expired:
             curr_id = request.json.get('id')
             d = session.query(Diary).filter_by(id=curr_id).first()
             session.delete(d)
             session.commit()
-            return jsonify({'status': True}), 200#
+            return jsonify({'status': True}), 200
         else:
-            return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
+            return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
-@app.route('/diary/permission',methods=['POST'])
+
+@app.route('/diary/permission', methods=['POST'])
 #@auth.login_required
 def change_permission():
-    if request.method=='POST':
+    if request.method == 'POST':
         curr_token = request.json.get('token')
         target = session.query(Token).filter_by(uuid=curr_token).first()
         if target and not target.expired:
@@ -180,7 +190,8 @@ def change_permission():
             else:
                 return jsonify({'status':False,'error': 'Diary does not exist'}), 200#
         else:
-            return jsonify({'status':False, 'error':'Invalid authentication token.'}), 200#
+            return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
+
 
 def make_json_response(data, status=True, code=200):
     """Utility function to create the JSON responses."""
@@ -219,7 +230,6 @@ def meta_members():
     with open("./team_members.txt") as f:
         team_members = f.read().strip().split("\n")
     return make_json_response(team_members)
-
 
 
 if __name__ == '__main__':

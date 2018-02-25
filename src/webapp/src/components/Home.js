@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import ajax_get, { API_ENDPOINT } from '../utils/ajax_get';
+import ajax_get from '../utils/ajax_get';
+import API_Endpoints from '../utils/API_Endpoints';
 
 class Home extends Component {
   constructor(props) {
@@ -12,7 +13,7 @@ class Home extends Component {
   }
 
   getMembers() {
-    ajax_get(`${API_ENDPOINT}/meta/members`, data => {
+    ajax_get(API_Endpoints.get_members, data => {
       if (data.status) {
         this.setState({ members: data.result });
       }

@@ -1,4 +1,4 @@
-const ajax_get = function(url, callback) {
+const ajax_post = function(url, data = {}, callback) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -13,9 +13,9 @@ const ajax_get = function(url, callback) {
     }
   };
 
-  xmlhttp.open('GET', url, true);
+  xmlhttp.open('POST', url, true);
   xmlhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  xmlhttp.send();
+  xmlhttp.send(JSON.stringify(data));
 };
 
-export default ajax_get;
+export default ajax_post;
