@@ -10,7 +10,7 @@ from models import Base, User, Diary, Token
 import uuid
 from flask_httpauth import HTTPBasicAuth
 from datetime import date
-import bleach
+import bleach # santinize library
 
 auth = HTTPBasicAuth()
 
@@ -43,6 +43,7 @@ def verify_password(username,password):
 def user_registration():
     print request.json
     if request.method == 'POST':
+        # santinize user input when registration
         username=bleach.clean(request.json.get('username'))
         password=request.json.get('password')
         fullname=bleach.clean(request.json.get('fullname'))
@@ -135,6 +136,7 @@ def create_diary():
         target= session.query(Token).filter_by(uuid=curr_token).first()
 
         if target and not target.expired:
+            # santinize diary content when creating diary
             title = bleach.clean(request.json.get('title'))
             public = request.json.get('public')
             text = bleach.clean(request.json.get('text'))
