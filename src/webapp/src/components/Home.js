@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ajax_get from '../utils/ajax_get';
 import API_Endpoints from '../utils/API_Endpoints';
+import { PageHeader, Panel } from 'react-bootstrap';
 
 class Home extends Component {
   constructor(props) {
@@ -22,16 +23,19 @@ class Home extends Component {
 
   render() {
     const members = this.state.members.map(name => (
-      <div key={name}>
-        <h1>{name}</h1>
-      </div>
+      <ul key={name}>
+        <li>{name}</li>
+      </ul>
     ));
     return (
       <div>
-        <header className="App-header">
-          <h1 className="App-title">Welcome to CS5331 - Group WLKB </h1>
-        </header>
-        <div className="App-intro">Team Members: {members}</div>
+        <PageHeader>Welcome to CS5331 - Group WLKB</PageHeader>
+        <Panel>
+          <Panel.Heading>
+            <Panel.Title componentClass="h3">Team Members</Panel.Title>
+          </Panel.Heading>
+          <Panel.Body>{members}</Panel.Body>
+        </Panel>
       </div>
     );
   }
