@@ -10,6 +10,7 @@ from models import Base, User, Diary, Token
 import uuid
 from flask_httpauth import HTTPBasicAuth
 from datetime import date
+import bleach
 
 auth = HTTPBasicAuth()
 
@@ -42,9 +43,9 @@ def verify_password(username,password):
 def user_registration():
     print request.json
     if request.method == 'POST':
-        username=request.json.get('username')
+        username=bleach.clean(request.json.get('username'))
         password=request.json.get('password')
-        fullname=request.json.get('fullname')
+        fullname=bleach.clean(request.json.get('fullname'))
         age=request.json.get('age')
 
         if username is None or password is None or fullname is None:
@@ -134,9 +135,9 @@ def create_diary():
         target= session.query(Token).filter_by(uuid=curr_token).first()
 
         if target and not target.expired:
-            title = request.json.get('title')
+            title = bleach.clean(request.json.get('title'))
             public = request.json.get('public')
-            text = request.json.get('text')
+            text = bleach.clean(request.json.get('text'))
             newDiary = Diary(title=title,author=target.username,publish_date=date.today(),public=public,text=text)
             session.add(newDiary)
             session.commit()
