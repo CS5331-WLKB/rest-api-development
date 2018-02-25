@@ -42,17 +42,23 @@ def verify_password(username, password):
 
 @app.route("/users/register", methods=['POST'])
 def user_registration():
-    print request.json
     if request.method == 'POST':
         # santinize user input when registration
-        username=bleach.clean(request.json.get('username'))
-        password=request.json.get('password')
-        fullname=bleach.clean(request.json.get('fullname'))
-        age=request.json.get('age')
+        fullname = bleach.clean(request.json.get('fullname'))
+        age = bleach.clean(request.json.get('age'))
+        username = bleach.clean(request.json.get('username'))
+        password = bleach.clean(request.json.get('password'))
 
-        if username is None or password is None or fullname is None:
-            print 'missing required field'
-            abort(400)
+        if not fullname or not age or not username or not password:
+            if not fullname:
+                text = 'Full Name'
+            elif not age:
+                text = 'Age'
+            elif not username:
+                text = 'Username'
+            elif not password:
+                text = 'Password'
+            return jsonify({'status': False, 'error': text + ' is required'})
 
         if session.query(User).filter_by(username=username).first() is not None:
             return jsonify({'status': False, 'error': 'User already exists!'}), 200
