@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import { Alert, Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
+import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
 class App extends Component {
