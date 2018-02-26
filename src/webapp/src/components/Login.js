@@ -12,6 +12,8 @@ import {
   Panel
 } from 'react-bootstrap';
 import FontAwesome from 'react-fontawesome';
+import { connect } from 'react-redux';
+import { login } from '../actions';
 
 class Login extends Component {
   constructor(props) {
@@ -36,35 +38,12 @@ class Login extends Component {
     const username = (this.usernameField.value || '').trim();
     const password = (this.passwordField.value || '').trim();
 
-    if (!username) {
-      this.setError('Username is required');
-    } else if (!password) {
-      this.setError('Password is required');
-    } else {
-      this.setState({
-        isLoading: true
-      });
-      ajax_post(
-        API_Endpoints.authenticate_user,
-        { username, password },
-        data => {
-          this.setState({
-            isLoading: false
-          });
-          if (data.status) {
-            this.setMessage('Login successfully');
-          } else {
-            this.passwordField.value = '';
-            this.passwordField.focus();
-            this.setState({ error: 'Invalid username or password' });
-          }
-        }
-      );
-    }
+    this.props.login({ username, password });
+    // TODO: clear password field if username or password is invalid
   }
 
   render() {
-    const { error, message, isLoading } = this.state;
+    const { error, message, isLoading } = this.props;
     return (
       <Panel>
         <Panel.Heading>
@@ -118,4 +97,19 @@ class Login extends Component {
   }
 }
 
-export default Login;
+function mapStateToProps(state) {
+  const { account } = state;
+  const { isFetching: isLoading, error } = account;
+  return {
+    isLoading,
+    error
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    login: data => dispatch(login(data))
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

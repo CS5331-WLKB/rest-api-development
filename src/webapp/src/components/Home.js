@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import ajax_get from '../utils/ajax_get';
-import API_Endpoints from '../utils/API_Endpoints';
 import { PageHeader, Panel } from 'react-bootstrap';
 import Diaries from './Diaries.js';
 import FontAwesome from 'react-fontawesome';

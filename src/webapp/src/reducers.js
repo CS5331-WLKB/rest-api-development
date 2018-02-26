@@ -3,7 +3,10 @@ import {
   REQUEST_MEMBERS,
   RECEIVE_MEMBERS,
   REQUEST_PUBLIC_DIARIES,
-  RECEIVE_PUBLIC_DIARIES
+  RECEIVE_PUBLIC_DIARIES,
+  REQUEST_USER,
+  RECEIVE_USER,
+  HANDLE_AUTH_ERR
 } from './actions';
 
 function members(
@@ -50,8 +53,41 @@ function publicDiaries(
   }
 }
 
+function account(
+  state = {
+    isAuthenticated: false,
+    isFetching: false,
+    error: '',
+    data: {
+      fullname: '',
+      username: '',
+      age: ''
+    }
+  },
+  action
+) {
+  switch (action.type) {
+    case 'REQUEST_USER':
+      return Object.assign({}, state, {
+        isFetching: action.isFetching
+      });
+    case 'HANDLE_AUTH_ERR':
+      return Object.assign({}, state, {
+        error: action.error
+      });
+    case 'RECEIVE_USER':
+      return Object.assign({}, state, {
+        isAuthenticated: true,
+        data: action.account
+      });
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   members,
-  publicDiaries
+  publicDiaries,
+  account
 });
 export default rootReducer;

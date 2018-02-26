@@ -5,9 +5,38 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { connect } from 'react-redux';
 
 class App extends Component {
+  renderPublicLinks() {
+    return (
+      <Nav pullRight>
+        <LinkContainer to="/login">
+          <NavItem eventKey={1}>Log In</NavItem>
+        </LinkContainer>
+        <LinkContainer to="/signup">
+          <NavItem eventKey={2}>Sign Up</NavItem>
+        </LinkContainer>
+      </Nav>
+    );
+  }
+
+  renderPrivateLinks() {
+    const { account } = this.props;
+    return (
+      <Nav pullRight>
+        <LinkContainer to="/account">
+          <NavItem eventKey={1}>Welcome, {account.fullname}</NavItem>
+        </LinkContainer>
+        <LinkContainer to="/new-diary">
+          <NavItem eventKey={2}>New Diary</NavItem>
+        </LinkContainer>
+      </Nav>
+    );
+  }
+
   render() {
+    const { isAuthenticated } = this.props;
     return (
       <div className="app-container">
         <Router>
@@ -18,14 +47,9 @@ class App extends Component {
                   <Link to="/">Home</Link>
                 </Navbar.Brand>
               </Navbar.Header>
-              <Nav pullRight>
-                <LinkContainer to="/login">
-                  <NavItem eventKey={1}>Log In</NavItem>
-                </LinkContainer>
-                <LinkContainer to="/signup">
-                  <NavItem eventKey={2}>Sign Up</NavItem>
-                </LinkContainer>
-              </Nav>
+              {isAuthenticated
+                ? this.renderPrivateLinks()
+                : this.renderPublicLinks()}
             </Navbar>
 
             <Grid>
@@ -44,4 +68,13 @@ class App extends Component {
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+  const { account } = state;
+  const { isAuthenticated, data } = account;
+  return {
+    isAuthenticated,
+    account: data
+  };
+}
+
+export default connect(mapStateToProps)(App);
