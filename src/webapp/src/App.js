@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import Home from './components/Home';
-import Login from './components/Login';
-import Signup from './components/Signup';
+import { Home, Login, Signup, Account, NewDiary } from './components';
 import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
@@ -31,6 +29,9 @@ class App extends Component {
         <LinkContainer to="/new-diary">
           <NavItem eventKey={2}>New Diary</NavItem>
         </LinkContainer>
+        <LinkContainer to="/logout">
+          <NavItem eventKey={2}>Log Out</NavItem>
+        </LinkContainer>
       </Nav>
     );
   }
@@ -58,6 +59,8 @@ class App extends Component {
                   <Route exact path="/" component={Home} />
                   <Route exact path="/login" component={Login} />
                   <Route exact path="/signup" component={Signup} />
+                  <Route exact path="/account" component={Account} />
+                  <Route exact path="/new-diary" component={NewDiary} />
                 </Col>
               </Row>
             </Grid>

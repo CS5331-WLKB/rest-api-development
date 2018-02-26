@@ -117,6 +117,7 @@ function fetchUser({ username, password }, dispatch) {
         return ajax_post(API_Endpoints.get_user, {}, true);
       })
       .then(data => {
+        sessionStorage.setItem('account', JSON.stringify(data));
         dispatch(receiveUser(data));
       })
       .catch(error => {
