@@ -9,6 +9,7 @@ export const RECEIVE_PUBLIC_DIARIES = 'RECEIVE_PUBLIC_DIARIES';
 export const REQUEST_USER = 'REQUEST_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
 export const HANDLE_AUTH_ERR = 'HANDLE_AUTH_ERR';
+export const UNAUTHENTICATE_USER = 'UNAUTHENTICATE_USER';
 
 function requestMembers() {
   return {
@@ -74,14 +75,14 @@ export function fetchItems(type) {
 
 function requestUser(isFetching = true) {
   return {
-    type: 'REQUEST_USER',
+    type: REQUEST_USER,
     isFetching
   };
 }
 
 function receiveUser({ username, fullname, age }) {
   return {
-    type: 'RECEIVE_USER',
+    type: RECEIVE_USER,
     account: {
       username,
       fullname,
@@ -92,8 +93,14 @@ function receiveUser({ username, fullname, age }) {
 
 function handleAuthErr(error) {
   return {
-    type: 'HANDLE_AUTH_ERR',
+    type: HANDLE_AUTH_ERR,
     error
+  };
+}
+
+function removeUser() {
+  return {
+    type: UNAUTHENTICATE_USER
   };
 }
 
@@ -132,5 +139,37 @@ function fetchUser({ username, password }, dispatch) {
 export function login(data) {
   return dispatch => {
     return fetchUser(data, dispatch);
+  };
+}
+
+export function logout() {
+  return dispatch => {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      return;
+    }
+    dispatch(requestUser());
+    ajax_post(API_Endpoints.expire_user, {}, true)
+      .then(() => {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('account');
+        dispatch(removeUser());
+      })
+      .catch(error => {
+        dispatch(handleAuthErr(error));
+      })
+      .finally(() => {
+        dispatch(requestUser(false));
+      });
+  };
+}
+
+export function checkIsAuthenticated() {
+  return dispatch => {
+    const isAuthenticated = sessionStorage.getItem('token');
+    const account = sessionStorage.getItem('account');
+    if (isAuthenticated && account) {
+      return dispatch(receiveUser(JSON.parse(account)));
+    }
   };
 }

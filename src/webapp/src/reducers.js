@@ -6,7 +6,8 @@ import {
   RECEIVE_PUBLIC_DIARIES,
   REQUEST_USER,
   RECEIVE_USER,
-  HANDLE_AUTH_ERR
+  HANDLE_AUTH_ERR,
+  UNAUTHENTICATE_USER
 } from './actions';
 
 function members(
@@ -58,27 +59,30 @@ function account(
     isAuthenticated: false,
     isFetching: false,
     error: '',
-    data: {
-      fullname: '',
-      username: '',
-      age: ''
-    }
+    data: {}
   },
   action
 ) {
   switch (action.type) {
-    case 'REQUEST_USER':
+    case REQUEST_USER:
       return Object.assign({}, state, {
         isFetching: action.isFetching
       });
-    case 'HANDLE_AUTH_ERR':
+    case HANDLE_AUTH_ERR:
       return Object.assign({}, state, {
         error: action.error
       });
-    case 'RECEIVE_USER':
+    case RECEIVE_USER:
       return Object.assign({}, state, {
+        error: '',
         isAuthenticated: true,
         data: action.account
+      });
+    case UNAUTHENTICATE_USER:
+      return Object.assign({}, state, {
+        error: '',
+        isAuthenticated: false,
+        data: {}
       });
     default:
       return state;

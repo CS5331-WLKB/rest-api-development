@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import { Home, Login, Signup, Account, NewDiary } from './components';
+import { Home, Login, Signup, Account, NewDiary, Logout } from './components';
 import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Button, LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
+import { checkIsAuthenticated, logout } from './actions';
 
 class App extends Component {
+  componentWillMount() {
+    const { checkAuthentication } = this.props;
+    checkAuthentication();
+  }
+
   renderPublicLinks() {
     return (
       <Nav pullRight>
@@ -19,6 +25,10 @@ class App extends Component {
     );
   }
 
+  handleLogout() {
+    this.props.logou();
+  }
+
   renderPrivateLinks() {
     const { account } = this.props;
     return (
@@ -30,7 +40,7 @@ class App extends Component {
           <NavItem eventKey={2}>New Diary</NavItem>
         </LinkContainer>
         <LinkContainer to="/logout">
-          <NavItem eventKey={2}>Log Out</NavItem>
+          <NavItem eventKey={3}>Log Out</NavItem>
         </LinkContainer>
       </Nav>
     );
@@ -60,6 +70,7 @@ class App extends Component {
                   <Route exact path="/login" component={Login} />
                   <Route exact path="/signup" component={Signup} />
                   <Route exact path="/account" component={Account} />
+                  <Route exact path="/logout" component={Logout} />
                   <Route exact path="/new-diary" component={NewDiary} />
                 </Col>
               </Row>
@@ -80,4 +91,11 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(App);
+function mapDispatchToProps(dispatch) {
+  return {
+    logout: () => dispatch(logout()),
+    checkAuthentication: () => dispatch(checkIsAuthenticated())
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

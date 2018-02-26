@@ -17,7 +17,7 @@ class Home extends Component {
     if (isLoadingMembers) {
       return (
         <span>
-          <FontAwesome tag="i" name="spinner" spin /> Loading...
+          <FontAwesome tag="i" name="spinner" spin />Loading...
         </span>
       );
     } else {

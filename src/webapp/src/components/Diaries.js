@@ -8,7 +8,7 @@ class Diaries extends Component {
     if (isLoading) {
       return (
         <span>
-          <FontAwesome tag="i" name="spinner" spin /> Loading...
+          <FontAwesome tag="i" name="spinner" spin />Loading...
         </span>
       );
     } else if (diaries.length) {

@@ -16,23 +16,6 @@ import { connect } from 'react-redux';
 import { login } from '../actions';
 
 class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      error: '',
-      message: '',
-      isLoading: false
-    };
-  }
-
-  setError(error) {
-    this.setState({ error });
-  }
-
-  setMessage(message) {
-    this.setState({ message });
-  }
-
   handleLogin(e) {
     e.preventDefault();
     const username = (this.usernameField.value || '').trim();
@@ -42,8 +25,48 @@ class Login extends Component {
     // TODO: clear password field if username or password is invalid
   }
 
+  renderForm() {
+    const { isLoading } = this.props;
+    return (
+      <Form horizontal onSubmit={this.handleLogin.bind(this)}>
+        <FormGroup controlId="formHorizontalUsername">
+          <Col componentClass={ControlLabel} sm={2}>
+            Username
+          </Col>
+          <Col sm={10}>
+            <FormControl
+              type="text"
+              placeholder="Username"
+              inputRef={ref => (this.usernameField = ref)}
+            />
+          </Col>
+        </FormGroup>
+        <FormGroup controlId="formHorizontalPassword">
+          <Col componentClass={ControlLabel} sm={2}>
+            Password
+          </Col>
+          <Col sm={10}>
+            <FormControl
+              type="password"
+              placeholder="Password"
+              inputRef={ref => (this.passwordField = ref)}
+            />
+          </Col>
+        </FormGroup>
+        <FormGroup>
+          <Col smOffset={2} sm={10}>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? <FontAwesome tag="i" name="spinner" spin /> : ''}
+              Log in
+            </Button>
+          </Col>
+        </FormGroup>
+      </Form>
+    );
+  }
+
   render() {
-    const { error, message, isLoading } = this.props;
+    const { error, account } = this.props;
     return (
       <Panel>
         <Panel.Heading>
@@ -52,45 +75,14 @@ class Login extends Component {
         <Panel.Body>
           {error ? (
             <Alert bsStyle="danger">{error}</Alert>
-          ) : message ? (
-            <Alert bsStyle="success">{message}</Alert>
+          ) : account.username ? (
+            <Alert bsStyle="success">
+              You are logged in successfully as {account.username}
+            </Alert>
           ) : (
             ''
           )}
-          <Form horizontal onSubmit={this.handleLogin.bind(this)}>
-            <FormGroup controlId="formHorizontalUsername">
-              <Col componentClass={ControlLabel} sm={2}>
-                Username
-              </Col>
-              <Col sm={10}>
-                <FormControl
-                  type="text"
-                  placeholder="Username"
-                  inputRef={ref => (this.usernameField = ref)}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup controlId="formHorizontalPassword">
-              <Col componentClass={ControlLabel} sm={2}>
-                Password
-              </Col>
-              <Col sm={10}>
-                <FormControl
-                  type="password"
-                  placeholder="Password"
-                  inputRef={ref => (this.passwordField = ref)}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup>
-              <Col smOffset={2} sm={10}>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <FontAwesome tag="i" name="spinner" spin /> : ''}
-                  Log in
-                </Button>
-              </Col>
-            </FormGroup>
-          </Form>
+          {!account.username ? this.renderForm() : ''}
         </Panel.Body>
       </Panel>
     );
@@ -99,10 +91,11 @@ class Login extends Component {
 
 function mapStateToProps(state) {
   const { account } = state;
-  const { isFetching: isLoading, error } = account;
+  const { isFetching: isLoading, error, data } = account;
   return {
     isLoading,
-    error
+    error,
+    account: data
   };
 }
 
