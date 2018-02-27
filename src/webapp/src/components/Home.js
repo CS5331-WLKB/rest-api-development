@@ -88,11 +88,11 @@ function mapStateToProps(state) {
     allDiaries,
     account
   } = state;
-  const { isAuthenticated } = account;
+  const { isAuthenticated, data } = account;
   const { isFetching: isLoadingMembers, items: members } = allMembers;
 
   const publicDiaries = allDiaries.filter(diary => diary.public);
-  const myDiaries = allDiaries.filter(diary => !diary.public);
+  const myDiaries = allDiaries.filter(diary => diary.author === data.username);
 
   return {
     isAuthenticated,
