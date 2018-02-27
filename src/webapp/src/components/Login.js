@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import ajax_post from '../utils/ajax_post';
-import API_Endpoints from '../utils/API_Endpoints';
 import {
   Alert,
   Form,

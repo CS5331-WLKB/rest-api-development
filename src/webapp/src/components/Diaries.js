@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
 import FontAwesome from 'react-fontawesome';
-import Diary from './Diary';
+import {
+  Button,
+  ButtonToolbar,
+  Col,
+  ListGroup,
+  ListGroupItem,
+  Row
+} from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { deleteDiary } from '../actions';
 
 class Diaries extends Component {
   render() {
-    const { isLoading, diaries } = this.props;
+    const { isLoading, diaries, deleteDiary } = this.props;
     if (isLoading) {
       return (
         <span>
@@ -13,15 +22,37 @@ class Diaries extends Component {
       );
     } else if (diaries.length) {
       return (
-        <ul>
+        <ListGroup>
           {diaries.map(diary => {
             return (
-              <li key={diary.id}>
-                <Diary diary={diary} />
-              </li>
+              <ListGroupItem key={diary.id}>
+                <Row className="show-grid">
+                  <Col sm={8}>
+                    <p>
+                      <strong>{diary.title}</strong>
+                    </p>
+                    <p>{diary.text}</p>
+                  </Col>
+                  {diary.public ? (
+                    ''
+                  ) : (
+                    <Col sm={4}>
+                      <ButtonToolbar className="pull-right">
+                        <Button
+                          bsSize="small"
+                          bsStyle="danger"
+                          onClick={() => deleteDiary(diary)}
+                        >
+                          Delete
+                        </Button>
+                      </ButtonToolbar>
+                    </Col>
+                  )}
+                </Row>
+              </ListGroupItem>
             );
           })}
-        </ul>
+        </ListGroup>
       );
     } else {
       return <span>No data found</span>;
@@ -29,4 +60,10 @@ class Diaries extends Component {
   }
 }
 
-export default Diaries;
+function mapDispatchToProps(dispatch) {
+  return {
+    deleteDiary: diary => dispatch(deleteDiary(diary))
+  };
+}
+
+export default connect(null, mapDispatchToProps)(Diaries);

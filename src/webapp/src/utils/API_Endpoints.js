@@ -7,7 +7,7 @@ const relativePaths = {
   expire_user: '/users/expire',
   get_user: '/users',
   get_public_diaries: '/diary',
-  get_private_diaries: '/diary',
+  get_my_diaries: '/diary',
   create_diary: '/diary/create',
   delete_diary: '/diary/delete',
   toggle_diary_permission: '/diary/permission'

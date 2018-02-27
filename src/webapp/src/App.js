@@ -4,7 +4,8 @@ import { Home, Login, Signup, Account, NewDiary, Logout } from './components';
 import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
 import { Button, LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
-import { checkIsAuthenticated, logout } from './actions';
+import { checkIsAuthenticated, logout, dismissAlert } from './actions';
+import { Alert, AlertContainer } from 'react-bs-notifier';
 
 class App extends Component {
   componentWillMount() {
@@ -47,9 +48,23 @@ class App extends Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props;
+    const { isAuthenticated, alerts, dismissAlert } = this.props;
     return (
       <div className="app-container">
+        <AlertContainer>
+          {alerts.map(alert => {
+            return (
+              <Alert
+                type={alert.type}
+                key={alert.id}
+                timeout={1000}
+                onDismiss={() => dismissAlert(alert)}
+              >
+                {alert.message}
+              </Alert>
+            );
+          })}
+        </AlertContainer>
         <Router>
           <div>
             <Navbar>
@@ -83,18 +98,20 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  const { account } = state;
+  const { account, alerts } = state;
   const { isAuthenticated, data } = account;
   return {
     isAuthenticated,
-    account: data
+    account: data,
+    alerts
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     logout: () => dispatch(logout()),
-    checkAuthentication: () => dispatch(checkIsAuthenticated())
+    checkAuthentication: () => dispatch(checkIsAuthenticated()),
+    dismissAlert: alert => dispatch(dismissAlert(alert))
   };
 }
 

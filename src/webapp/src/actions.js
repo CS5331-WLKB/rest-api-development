@@ -6,10 +6,15 @@ export const REQUEST_MEMBERS = 'REQUEST_MEMBERS';
 export const RECEIVE_MEMBERS = 'RECEIVE_MEMBERS';
 export const REQUEST_PUBLIC_DIARIES = 'REQUEST_PUBLIC_DIARIES';
 export const RECEIVE_PUBLIC_DIARIES = 'RECEIVE_PUBLIC_DIARIES';
+export const REQUEST_MY_DIARIES = 'REQUEST_MY_DIARIES';
+export const RECEIVE_MY_DIARIES = 'RECEIVE_MY_DIARIES';
 export const REQUEST_USER = 'REQUEST_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
 export const HANDLE_AUTH_ERR = 'HANDLE_AUTH_ERR';
 export const UNAUTHENTICATE_USER = 'UNAUTHENTICATE_USER';
+export const REMOVE_DIARY = 'REMOVE_DIARY';
+export const SHOW_ALERT = 'SHOW_ALERT';
+export const DISMISS_ALERT = 'DISMISS_ALERT';
 
 function requestMembers() {
   return {
@@ -33,7 +38,20 @@ function requestPublicDiaires() {
 function receivePublicDiaries(items) {
   return {
     type: RECEIVE_PUBLIC_DIARIES,
-    publicDiaries: items
+    diaries: items
+  };
+}
+
+function requestMyDiaries() {
+  return {
+    type: REQUEST_MY_DIARIES
+  };
+}
+
+function receiveMyDiaries(items) {
+  return {
+    type: RECEIVE_MY_DIARIES,
+    diaries: items
   };
 }
 
@@ -43,15 +61,19 @@ function requestItems(type) {
       return requestMembers();
     case 'public-diaries':
       return requestPublicDiaires();
+    case 'my-diaries':
+      return requestMyDiaries();
   }
 }
 
-function receiveItems(type, json) {
+function receiveItems(type, items) {
   switch (type) {
     case 'members':
-      return receiveMembers(json);
+      return receiveMembers(items);
     case 'public-diaries':
-      return receivePublicDiaries(json);
+      return receivePublicDiaries(items);
+    case 'my-diaries':
+      return receiveMyDiaries(items);
   }
 }
 
@@ -61,15 +83,21 @@ function getUrl(type) {
       return API_Endpoints.get_members;
     case 'public-diaries':
       return API_Endpoints.get_public_diaries;
+    case 'my-diaries':
+      return API_Endpoints.get_my_diaries;
   }
 }
 
 export function fetchItems(type) {
   return dispatch => {
     dispatch(requestItems(type));
-    return ajax_get(getUrl(type)).then(data =>
-      dispatch(receiveItems(type, data.result))
-    );
+    let promise;
+    if (type === 'my-diaries') {
+      promise = ajax_post(getUrl(type), {}, true);
+    } else {
+      promise = ajax_get(getUrl(type));
+    }
+    return promise.then(data => dispatch(receiveItems(type, data.result)));
   };
 }
 
@@ -170,5 +198,55 @@ export function checkIsAuthenticated() {
     if (isAuthenticated && account) {
       return dispatch(receiveUser(JSON.parse(account)));
     }
+  };
+}
+
+function removeDiary(diary) {
+  return {
+    type: REMOVE_DIARY,
+    diary
+  };
+}
+
+export function showAlert(alert) {
+  return {
+    type: SHOW_ALERT,
+    alert
+  };
+}
+
+export function dismissAlert(alert) {
+  return {
+    type: DISMISS_ALERT,
+    alert
+  };
+}
+
+export function deleteDiary(diary) {
+  return dispatch => {
+    dispatch(removeDiary(diary));
+    return ajax_post(
+      API_Endpoints.delete_diary,
+      {
+        id: diary.id
+      },
+      true
+    )
+      .then(() => {
+        dispatch(
+          showAlert({
+            type: 'success',
+            message: 'Diary is deleted successfully'
+          })
+        );
+      })
+      .catch(error => {
+        dispatch(
+          showAlert({
+            type: 'danger',
+            message: error
+          })
+        );
+      });
   };
 }

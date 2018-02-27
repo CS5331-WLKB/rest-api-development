@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Panel, Alert } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { FontAwesome } from 'react-fontawesome';
 import { logout } from '../actions';
 
 class Logout extends Component {

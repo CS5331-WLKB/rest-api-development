@@ -10,6 +10,9 @@ class Home extends Component {
     const { dispatch } = this.props;
     dispatch(fetchItems('members'));
     dispatch(fetchItems('public-diaries'));
+    if (this.props.isAuthenticated) {
+      dispatch(fetchItems('my-diaries'));
+    }
   }
 
   renderMembers() {
@@ -32,7 +35,13 @@ class Home extends Component {
   }
 
   render() {
-    const { isLoadingPublicDiaries, publicDiaries } = this.props;
+    const {
+      isAuthenticated,
+      isLoadingPublicDiaries,
+      publicDiaries,
+      isLoadingMyDiaries,
+      myDiaries
+    } = this.props;
 
     return (
       <div>
@@ -54,29 +63,45 @@ class Home extends Component {
             />
           </Panel.Body>
         </Panel>
+        {isAuthenticated ? (
+          <Panel>
+            <Panel.Heading>
+              <Panel.Title componentClass="h3">My Diaries</Panel.Title>
+            </Panel.Heading>
+            <Panel.Body>
+              <Diaries isLoading={isLoadingMyDiaries} diaries={myDiaries} />
+            </Panel.Body>
+          </Panel>
+        ) : (
+          ''
+        )}
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { members: allMembers, publicDiaries: allPublicDiaries } = state;
-  const { isFetching: isLoadingMembers, items: members } = allMembers || {
-    isFetching: true,
-    items: []
-  };
+  const {
+    members: allMembers,
+    publicDiaries: allPublicDiaries,
+    myDiaries: allMyDiaries,
+    account
+  } = state;
+  const { isFetching: isLoadingMembers, items: members } = allMembers;
   const {
     isFetching: isLoadingPublicDiaries,
     items: publicDiaries
-  } = allPublicDiaries || {
-    isFetching: true,
-    items: []
-  };
+  } = allPublicDiaries;
+  const { isFetching: isLoadingMyDiaries, items: myDiaries } = allMyDiaries;
+  const { isAuthenticated } = account;
   return {
+    isAuthenticated,
     isLoadingMembers,
     members,
     isLoadingPublicDiaries,
-    publicDiaries
+    publicDiaries,
+    isLoadingMyDiaries,
+    myDiaries
   };
 }
 
