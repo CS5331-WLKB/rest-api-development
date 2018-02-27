@@ -5,20 +5,21 @@ import API_Endpoints from './utils/API_Endpoints';
 export const REQUEST_MEMBERS = 'REQUEST_MEMBERS';
 export const RECEIVE_MEMBERS = 'RECEIVE_MEMBERS';
 export const REQUEST_PUBLIC_DIARIES = 'REQUEST_PUBLIC_DIARIES';
-export const RECEIVE_PUBLIC_DIARIES = 'RECEIVE_PUBLIC_DIARIES';
 export const REQUEST_MY_DIARIES = 'REQUEST_MY_DIARIES';
-export const RECEIVE_MY_DIARIES = 'RECEIVE_MY_DIARIES';
+export const RECEIVE_DIARIES = 'RECEIVE_DIARIES';
+export const REMOVE_DIARY = 'REMOVE_DIARY';
 export const REQUEST_USER = 'REQUEST_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
-export const HANDLE_AUTH_ERR = 'HANDLE_AUTH_ERR';
 export const UNAUTHENTICATE_USER = 'UNAUTHENTICATE_USER';
-export const REMOVE_DIARY = 'REMOVE_DIARY';
+export const HANDLE_AUTH_ERR = 'HANDLE_AUTH_ERR';
 export const SHOW_ALERT = 'SHOW_ALERT';
 export const DISMISS_ALERT = 'DISMISS_ALERT';
+export const TOGGLE_PERMISSION = 'TOGGLE_PERMISSION';
 
-function requestMembers() {
+function requestMembers(isFetching) {
   return {
-    type: REQUEST_MEMBERS
+    type: REQUEST_MEMBERS,
+    isFetching
   };
 }
 
@@ -29,40 +30,35 @@ function receiveMembers(items) {
   };
 }
 
-function requestPublicDiaires() {
+function requestPublicDiaires(isFetching) {
   return {
-    type: REQUEST_PUBLIC_DIARIES
+    type: REQUEST_PUBLIC_DIARIES,
+    isFetching
   };
 }
 
-function receivePublicDiaries(items) {
+function requestMyDiaries(isFetching) {
   return {
-    type: RECEIVE_PUBLIC_DIARIES,
+    type: REQUEST_MY_DIARIES,
+    isFetching
+  };
+}
+
+function receiveDiaries(items) {
+  return {
+    type: RECEIVE_DIARIES,
     diaries: items
   };
 }
 
-function requestMyDiaries() {
-  return {
-    type: REQUEST_MY_DIARIES
-  };
-}
-
-function receiveMyDiaries(items) {
-  return {
-    type: RECEIVE_MY_DIARIES,
-    diaries: items
-  };
-}
-
-function requestItems(type) {
+function requestItems(type, isFetching = true) {
   switch (type) {
     case 'members':
-      return requestMembers();
+      return requestMembers(isFetching);
     case 'public-diaries':
-      return requestPublicDiaires();
+      return requestPublicDiaires(isFetching);
     case 'my-diaries':
-      return requestMyDiaries();
+      return requestMyDiaries(isFetching);
   }
 }
 
@@ -71,9 +67,8 @@ function receiveItems(type, items) {
     case 'members':
       return receiveMembers(items);
     case 'public-diaries':
-      return receivePublicDiaries(items);
     case 'my-diaries':
-      return receiveMyDiaries(items);
+      return receiveDiaries(items);
   }
 }
 
@@ -97,7 +92,11 @@ export function fetchItems(type) {
     } else {
       promise = ajax_get(getUrl(type));
     }
-    return promise.then(data => dispatch(receiveItems(type, data.result)));
+    return promise
+      .then(data => dispatch(receiveItems(type, data.result)))
+      .finally(() => {
+        dispatch(requestItems(type, false));
+      });
   };
 }
 
@@ -201,13 +200,6 @@ export function checkIsAuthenticated() {
   };
 }
 
-function removeDiary(diary) {
-  return {
-    type: REMOVE_DIARY,
-    diary
-  };
-}
-
 export function showAlert(alert) {
   return {
     type: SHOW_ALERT,
@@ -219,6 +211,13 @@ export function dismissAlert(alert) {
   return {
     type: DISMISS_ALERT,
     alert
+  };
+}
+
+function removeDiary(diary) {
+  return {
+    type: REMOVE_DIARY,
+    diary
   };
 }
 
@@ -248,5 +247,33 @@ export function deleteDiary(diary) {
           })
         );
       });
+  };
+}
+
+function toggleDiaryPermission(diary) {
+  return {
+    type: TOGGLE_PERMISSION,
+    diary
+  };
+}
+
+export function togglePermission(diary) {
+  return dispatch => {
+    dispatch(toggleDiaryPermission(diary));
+    return ajax_post(
+      API_Endpoints.toggle_diary_permission,
+      {
+        id: diary.id,
+        public: !diary.public
+      },
+      true
+    ).catch(error => {
+      dispatch(
+        showAlert({
+          type: 'danger',
+          message: error
+        })
+      );
+    });
   };
 }

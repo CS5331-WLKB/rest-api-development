@@ -9,11 +9,17 @@ import {
   Row
 } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { deleteDiary } from '../actions';
+import { deleteDiary, togglePermission } from '../actions';
 
 class Diaries extends Component {
   render() {
-    const { isLoading, diaries, deleteDiary } = this.props;
+    const {
+      isAuthenticated,
+      isLoading,
+      diaries,
+      deleteDiary,
+      toggleDiary
+    } = this.props;
     if (isLoading) {
       return (
         <span>
@@ -33,9 +39,7 @@ class Diaries extends Component {
                     </p>
                     <p>{diary.text}</p>
                   </Col>
-                  {diary.public ? (
-                    ''
-                  ) : (
+                  {isAuthenticated ? (
                     <Col sm={4}>
                       <ButtonToolbar className="pull-right">
                         <Button
@@ -45,8 +49,16 @@ class Diaries extends Component {
                         >
                           Delete
                         </Button>
+                        <Button
+                          bsSize="small"
+                          onClick={() => toggleDiary(diary)}
+                        >
+                          Set as {diary.public ? 'Private' : 'Public'}
+                        </Button>
                       </ButtonToolbar>
                     </Col>
+                  ) : (
+                    ''
                   )}
                 </Row>
               </ListGroupItem>
@@ -60,10 +72,19 @@ class Diaries extends Component {
   }
 }
 
-function mapDispatchToProps(dispatch) {
+function mapStateToProps(state) {
+  const { account } = state;
+  const { isAuthenticated } = account;
   return {
-    deleteDiary: diary => dispatch(deleteDiary(diary))
+    isAuthenticated
   };
 }
 
-export default connect(null, mapDispatchToProps)(Diaries);
+function mapDispatchToProps(dispatch) {
+  return {
+    deleteDiary: diary => dispatch(deleteDiary(diary)),
+    toggleDiary: diary => dispatch(togglePermission(diary))
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Diaries);

@@ -19,6 +19,10 @@ class Logout extends Component {
         <Panel.Body>
           {isLoading ? (
             'Loading...'
+          ) : isAuthenticated ? (
+            <Alert bsStyle="danger">
+              Something went wrong. Please refresh your page.
+            </Alert>
           ) : (
             <Alert bsStyle="success">You are logged out successfully.</Alert>
           )}

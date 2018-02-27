@@ -83,17 +83,17 @@ class Home extends Component {
 function mapStateToProps(state) {
   const {
     members: allMembers,
-    publicDiaries: allPublicDiaries,
-    myDiaries: allMyDiaries,
+    isLoadingPublicDiaries,
+    isLoadingMyDiaries,
+    allDiaries,
     account
   } = state;
-  const { isFetching: isLoadingMembers, items: members } = allMembers;
-  const {
-    isFetching: isLoadingPublicDiaries,
-    items: publicDiaries
-  } = allPublicDiaries;
-  const { isFetching: isLoadingMyDiaries, items: myDiaries } = allMyDiaries;
   const { isAuthenticated } = account;
+  const { isFetching: isLoadingMembers, items: members } = allMembers;
+
+  const publicDiaries = allDiaries.filter(diary => diary.public);
+  const myDiaries = allDiaries.filter(diary => !diary.public);
+
   return {
     isAuthenticated,
     isLoadingMembers,

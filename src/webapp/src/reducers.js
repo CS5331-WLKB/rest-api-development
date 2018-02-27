@@ -3,16 +3,16 @@ import {
   REQUEST_MEMBERS,
   RECEIVE_MEMBERS,
   REQUEST_PUBLIC_DIARIES,
-  RECEIVE_PUBLIC_DIARIES,
   REQUEST_MY_DIARIES,
-  RECEIVE_MY_DIARIES,
+  RECEIVE_DIARIES,
+  REMOVE_DIARY,
   REQUEST_USER,
   RECEIVE_USER,
-  HANDLE_AUTH_ERR,
   UNAUTHENTICATE_USER,
-  REMOVE_DIARY,
+  HANDLE_AUTH_ERR,
   SHOW_ALERT,
-  DISMISS_ALERT
+  DISMISS_ALERT,
+  TOGGLE_PERMISSION
 } from './actions';
 
 function members(
@@ -25,11 +25,10 @@ function members(
   switch (action.type) {
     case REQUEST_MEMBERS:
       return Object.assign({}, state, {
-        isFetching: true
+        isFetching: action.isFetching
       });
     case RECEIVE_MEMBERS:
       return Object.assign({}, state, {
-        isFetching: false,
         items: action.members
       });
     default:
@@ -37,62 +36,51 @@ function members(
   }
 }
 
-function removeDiary(state = [], action) {
-  switch (action.type) {
-    case REMOVE_DIARY:
-      const { diary } = action;
-      const index = state.indexOf(diary);
-      return [...state.slice(0, index), ...state.slice(index + 1)];
-  }
-}
-
-function publicDiaries(
-  state = {
-    isFetching: false,
-    items: []
-  },
-  action
-) {
+function isLoadingPublicDiaries(state = true, action) {
   switch (action.type) {
     case REQUEST_PUBLIC_DIARIES:
-      return Object.assign({}, state, {
-        isFetching: true
-      });
-    case RECEIVE_PUBLIC_DIARIES:
-      return Object.assign({}, state, {
-        isFetching: false,
-        items: action.diaries
-      });
-    case REMOVE_DIARY:
-      return Object.assign({}, state, {
-        items: removeDiary(state.items, action)
-      });
+      return action.isFetching;
     default:
       return state;
   }
 }
 
-function myDiaries(
+function isLoadingMyDiaries(state = true, action) {
+  switch (action.type) {
+    case REQUEST_MY_DIARIES:
+      return action.isFetching;
+    default:
+      return state;
+  }
+}
+
+function diary(
   state = {
-    isFetching: false,
-    items: []
+    title: '',
+    text: '',
+    public: true
   },
   action
 ) {
   switch (action.type) {
-    case REQUEST_MY_DIARIES:
+    case TOGGLE_PERMISSION:
       return Object.assign({}, state, {
-        isFetching: true
+        public: !state.public
       });
-    case RECEIVE_MY_DIARIES:
-      return Object.assign({}, state, {
-        isFetching: false,
-        items: action.diaries
+  }
+}
+
+function allDiaries(state = [], action) {
+  switch (action.type) {
+    case RECEIVE_DIARIES:
+      return [...state, ...action.diaries];
+    case TOGGLE_PERMISSION:
+      return state.map(d => {
+        return d.id === action.diary.id ? diary(action.diary, action) : d;
       });
     case REMOVE_DIARY:
-      return Object.assign({}, state, {
-        items: removeDiary(state.items, action)
-      });
+      const index = state.indexOf(action.diary);
+      return [...state.slice(0, index), ...state.slice(index + 1)];
     default:
       return state;
   }
@@ -150,8 +138,9 @@ function alerts(state = [], action) {
 
 const rootReducer = combineReducers({
   members,
-  publicDiaries,
-  myDiaries,
+  isLoadingPublicDiaries,
+  isLoadingMyDiaries,
+  allDiaries,
   account,
   alerts
 });
