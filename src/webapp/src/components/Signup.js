@@ -55,16 +55,18 @@ class Signup extends Component {
         age,
         username,
         password
-      }).then(data => {
-        this.setState({
-          isLoading: false
-        });
-        if (data.status) {
+      })
+        .then(() => {
           this.setMessage('Account created successfully');
-        } else {
-          this.setError(data.error);
-        }
-      });
+        })
+        .catch(error => {
+          this.setError(error);
+        })
+        .finally(() => {
+          this.setState({
+            isLoading: false
+          });
+        });
     }
   }
 

@@ -150,15 +150,14 @@ export function logout() {
     }
     dispatch(requestUser());
     ajax_post(API_Endpoints.expire_user, {}, true)
-      .then(() => {
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('account');
-        dispatch(removeUser());
-      })
       .catch(error => {
         dispatch(handleAuthErr(error));
       })
       .finally(() => {
+        // remove all session data
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('account');
+        dispatch(removeUser());
         dispatch(requestUser(false));
       });
   };
