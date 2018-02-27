@@ -126,7 +126,7 @@ def get_secret_diary():
     curr_token = request.json.get('token')
     target = session.query(Token).filter_by(uuid=curr_token).first()
     if target and not target.expired:
-        diaryList = session.query(Diary).filter_by(author=target.username)
+        diaryList = session.query(Diary).filter_by(author=target.username, public=False)
         diaryList_serialized = [d.serialize for d in diaryList.all()]
         return jsonify({'status': True, 'result':diaryList_serialized}), 201#
     return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200#

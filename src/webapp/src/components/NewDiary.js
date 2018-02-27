@@ -3,6 +3,7 @@ import ajax_post from '../utils/ajax_post';
 import API_Endpoints from '../utils/API_Endpoints';
 import {
   Alert,
+  Checkbox,
   Form,
   FormGroup,
   FormControl,
@@ -35,6 +36,7 @@ class NewDiary extends Component {
     e.preventDefault();
     const title = (this.titleField.value || '').trim();
     const text = (this.textField.value || '').trim();
+    const isPublic = this.publicField.checked;
 
     if (!title) {
       this.setError('Title is required');
@@ -49,7 +51,7 @@ class NewDiary extends Component {
         {
           title,
           text,
-          public: false
+          public: isPublic
         },
         true
       )
@@ -93,6 +95,16 @@ class NewDiary extends Component {
               placeholder="Text"
               inputRef={ref => (this.textField = ref)}
             />
+          </Col>
+        </FormGroup>
+        <FormGroup>
+          <Col componentClass={ControlLabel} sm={2}>
+            &nbsp;
+          </Col>
+          <Col sm={10}>
+            <Checkbox inputRef={ref => (this.publicField = ref)}>
+              Is Public
+            </Checkbox>
           </Col>
         </FormGroup>
         <FormGroup>

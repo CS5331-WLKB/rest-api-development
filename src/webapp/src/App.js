@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { Home, Login, Signup, Account, NewDiary, Logout } from './components';
 import { Navbar, Nav, NavItem, Grid, Row, Col } from 'react-bootstrap';
-import { Button, LinkContainer } from 'react-router-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { connect } from 'react-redux';
 import { checkIsAuthenticated, logout, dismissAlert } from './actions';
 import { Alert, AlertContainer } from 'react-bs-notifier';

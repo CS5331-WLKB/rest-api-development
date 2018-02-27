@@ -14,6 +14,7 @@ import {
   DISMISS_ALERT,
   TOGGLE_PERMISSION
 } from './actions';
+import { unionBy } from 'lodash';
 
 function members(
   state = {
@@ -73,7 +74,7 @@ function diary(
 function allDiaries(state = [], action) {
   switch (action.type) {
     case RECEIVE_DIARIES:
-      return [...state, ...action.diaries];
+      return unionBy(state, action.diaries, 'id');
     case TOGGLE_PERMISSION:
       return state.map(d => {
         return d.id === action.diary.id ? diary(action.diary, action) : d;

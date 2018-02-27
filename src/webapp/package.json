@@ -6,6 +6,7 @@
     "bootstrap": "3",
     "cross-fetch": "^1.1.1",
     "font-awesome": "^4.7.0",
+    "lodash": "^4.17.5",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.1",
     "react-bs-notifier": "^4.4.6",
