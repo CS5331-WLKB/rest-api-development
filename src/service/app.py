@@ -20,25 +20,21 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
 app = Flask(__name__)
 # Enable cross origin sharing for all endpoints
 CORS(app)
 
 # Remember to update this list
 ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register',
-                 '/users/expire','users/authenticate','/users','/diary (get)','/diary(post)',
+                 '/users/expire','/users/authenticate','/users','/diary (get)','/diary(post)',
                  '/diary/create','/diary/delete','/diary/permission']
 
-
-# @auth.verify_password
 def verify_password(username, password):
     user = session.query(User).filter_by(username=username).first()
     if not user or not user.verify_password(password):
         return False
     g.user = user
     return True
-
 
 @app.route("/users/register", methods=['POST'])
 def user_registration():
@@ -69,13 +65,12 @@ def user_registration():
 
         return jsonify({'status': True}), 201
 
-
 def get_token(username):
     temp_uuid = str(uuid.uuid4())
     newToken = Token(uuid=temp_uuid, expired=False, username=username)
     session.add(newToken)
     session.commit()
-    return jsonify({'status': True, 'token': temp_uuid}), 200
+    return jsonify({'status': True, 'result':{'token': temp_uuid}}), 200
 
 
 @app.route('/users/authenticate', methods=['POST'])
@@ -86,7 +81,6 @@ def get_authentication():
         return get_token(username)
     else:
         return jsonify({'status': False}), 200
-
 
 @app.route('/users/expire', methods=['POST'])
 def expire_token():
@@ -104,9 +98,7 @@ def expire_token():
         except:
             return jsonify({'status': False}), 200
 
-
 @app.route('/users', methods=['POST'])
-#@auth.login_required
 def get_user():
     if request.method == 'POST':
         curr_uuid = request.json.get('token')
@@ -117,10 +109,7 @@ def get_user():
             username = target.username
             curr_user = session.query(User).filter_by(
                 username=username).first()
-            return jsonify({'status': True, 'username': username, 'fullname': curr_user.fullname, 'age': curr_user.age}), 200
-
-# @auth.login_required
-
+            return jsonify({'status': True, 'result':{'username': username, 'fullname': curr_user.fullname, 'age': curr_user.age}}), 200
 
 def get_secret_diary():
     curr_token = request.json.get('token')
@@ -137,13 +126,11 @@ def get_diary():
     if request.method == 'GET':
         diaryList = session.query(Diary).filter_by(public=True)
         diaryList_serialized = [d.serialize for d in diaryList.all()]            
-        return jsonify({'status': True,'result':diaryList_serialized }),200#
+        return jsonify({'status': True,'result':diaryList_serialized }),200
     else:
         return get_secret_diary()
 
-
 @app.route('/diary/create', methods=['POST'])
-#@auth.login_required
 def create_diary():
     if request.method == 'POST':
         curr_token = request.json.get('token')
@@ -161,9 +148,7 @@ def create_diary():
         else:
             return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
-
 @app.route('/diary/delete', methods=['POST'])
-#@auth.login_required
 def delete_diary():
     if request.method == 'POST':
         curr_token = request.json.get('token')
@@ -177,9 +162,7 @@ def delete_diary():
         else:
             return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
-
 @app.route('/diary/permission', methods=['POST'])
-#@auth.login_required
 def change_permission():
     if request.method == 'POST':
         curr_token = request.json.get('token')
@@ -192,9 +175,9 @@ def change_permission():
                 d.public=public
                 session.add(d)
                 session.commit()
-                return jsonify({'status':True}), 200#
+                return jsonify({'status':True}), 200
             else:
-                return jsonify({'status':False,'error': 'Diary does not exist'}), 200#
+                return jsonify({'status':False,'error': 'Diary does not exist'}), 200
         else:
             return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
