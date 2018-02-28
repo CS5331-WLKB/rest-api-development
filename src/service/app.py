@@ -72,7 +72,6 @@ def get_token(username):
     session.commit()
     return jsonify({'status': True, 'result':{'token': temp_uuid}}), 200
 
-
 @app.route('/users/authenticate', methods=['POST'])
 def get_authentication():
     username = request.json.get('username')
@@ -117,10 +116,9 @@ def get_secret_diary():
     if target and not target.expired:
         diaryList = session.query(Diary).filter_by(author=target.username)
         diaryList_serialized = [d.serialize for d in diaryList.all()]
-        return jsonify({'status': True, 'result':diaryList_serialized}), 201#
-    return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200#
+        return jsonify({'status': True, 'result':diaryList_serialized}), 201
+    return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
     
-        
 @app.route('/diary', methods=['GET','POST'])
 def get_diary():
     if request.method == 'GET':
@@ -156,9 +154,12 @@ def delete_diary():
         if target and not target.expired:
             curr_id = request.json.get('id')
             d = session.query(Diary).filter_by(id=curr_id).first()
-            session.delete(d)
-            session.commit()
-            return jsonify({'status': True}), 200
+            if d:
+                session.delete(d)
+                session.commit()
+                return jsonify({'status': True}), 200
+            else:
+                return jsonify({'status': False, 'error': 'Diary does not exist.'}), 200
         else:
             return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
@@ -181,7 +182,6 @@ def change_permission():
         else:
             return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
 
-
 def make_json_response(data, status=True, code=200):
     """Utility function to create the JSON responses."""
 
@@ -199,7 +199,6 @@ def make_json_response(data, status=True, code=200):
         mimetype='application/json'
     )
     return response
-
 
 @app.route("/")
 def index():
