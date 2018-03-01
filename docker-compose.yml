@@ -1,0 +1,13 @@
+version: '3'
+services:
+  frontend: 
+    container_name: WLKB-frontend
+    build: ./src/webapp
+    ports: 
+      - "3000:3000"
+  backend: 
+    container_name: WLKB-backend
+    build: ./src/service  
+    ports:
+      - "8080:8080"
+

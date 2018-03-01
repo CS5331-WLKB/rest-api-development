@@ -26,7 +26,6 @@ class Diaries extends Component {
 
   render() {
     const {
-      isAuthenticated,
       isLoading,
       diaries,
       deleteDiary,
@@ -105,9 +104,8 @@ class Diaries extends Component {
 
 function mapStateToProps(state) {
   const { account } = state;
-  const { isAuthenticated, data: currentAccount } = account;
+  const { data: currentAccount } = account;
   return {
-    isAuthenticated,
     currentAccount
   };
 }
