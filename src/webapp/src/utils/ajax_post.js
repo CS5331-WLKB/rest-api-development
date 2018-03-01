@@ -14,7 +14,7 @@ const ajax_post = function(url, data = {}, isAuthenticated = false) {
     .then(response => response.json())
     .then(data => {
       if (data.status) {
-        return data;
+        return data.result;
       } else {
         throw data.error;
       }

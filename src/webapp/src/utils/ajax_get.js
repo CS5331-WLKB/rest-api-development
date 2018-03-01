@@ -5,7 +5,7 @@ const ajax_get = function(url) {
     .then(response => response.json())
     .then(data => {
       if (data.status) {
-        return data;
+        return data.result;
       } else {
         throw data.error;
       }

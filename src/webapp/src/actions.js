@@ -93,7 +93,7 @@ export function fetchItems(type) {
       promise = ajax_get(getUrl(type));
     }
     return promise
-      .then(data => dispatch(receiveItems(type, data.result)))
+      .then(data => dispatch(receiveItems(type, data)))
       .finally(() => {
         dispatch(requestItems(type, false));
       });
