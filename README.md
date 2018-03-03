@@ -85,10 +85,13 @@ If a response is received, you're good to go.
 
 ## Screenshots
 
-Please replace the example screenshots with screenshots of your completed
-project. Feel free to include more than one.
+![home](./img/home.png)
+![home_login](./img/home_login.png)
+![sign_up](./img/signup.png)
+![login](./img/login.png)
+![profile](./img/profile.png)
+![newdiary](./img/newdiary.png)
 
-![Sample Screenshot](./img/samplescreenshot.png)
 
 ## Administration and Evaluation
 
@@ -96,36 +99,38 @@ Please fill out this section with details relevant to your team.
 
 ### Team Members
 
-1. Member 1 Name
-2. Member 2 Name
-3. Member 3 Name
-4. Member 4 Name
+1. Wei Ran
+2. Liu Chao
+3. Kong Chao
+4. Bai Xin
 
 ### Short Answer Questions
 
 #### Question 1: Briefly describe the web technology stack used in your implementation.
 
-Answer: Please replace this sentence with your answer.
+Answer: React + flask + sqlite.
 
 #### Question 2: Are there any security considerations your team thought about?
 
-Answer: Please replace this sentence with your answer.
+Answer: user input sanitization .
 
 #### Question 3: Are there any improvements you would make to the API specification to improve the security of the web application?
 
-Answer: Please replace this sentence with your answer.
+Answer: <br>
+It would be better to have a basic access authentication. <br>
+User has to provide username and password when making a request for private resources, token alone is not enough.
 
 #### Question 4: Are there any additional features you would like to highlight?
 
-Answer: Please replace this sentence with your answer.
+Answer: .
 
 #### Question 5: Is your web application vulnerable? If yes, how and why? If not, what measures did you take to secure it?
 
-Answer: Please replace this sentence with your answer.
+Answer: .
 
 #### Feedback: Is there any other feedback you would like to give?
 
-Answer: Please replace this sentence with your answer.
+Answer: .
 
 ### Declaration
 
