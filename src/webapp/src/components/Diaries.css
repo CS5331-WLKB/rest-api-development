@@ -1,0 +1,11 @@
+.diary-snippet .label {
+  margin-left: 5px;
+}
+
+.diary-snippet .fa {
+  margin: 0;
+}
+
+.diary-snippet small {
+  display: block;
+}

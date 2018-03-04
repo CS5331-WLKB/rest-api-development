@@ -1,0 +1,6 @@
+sqlalchemy
+flask
+flask_cors
+flask_httpauth
+passlib
+bleach
