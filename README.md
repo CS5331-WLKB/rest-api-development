@@ -101,12 +101,32 @@ If a response is received, you're good to go.
 
 ## Screenshots
 
-![home](./img/home.png)
-![home_login](./img/home_login.png)
-![sign_up](./img/signup.png)
-![login](./img/login.png)
-![profile](./img/profile.png)
-![newdiary](./img/newdiary.png)
+* Register a User
+  ![signup](./img/signup.png)
+
+* Log In
+  ![login](./img/login.png)
+
+* Log Out
+  ![logout](./img/logout.png)
+
+* Display All Public Diaries
+  ![public diaries](./img/home_public.png)
+
+* Display All Authenticated User's Diaries
+  ![private diaries](./img/home_logged_in.png)
+
+* Create a New Diary
+  ![create new diary](./img/create_new_diary.png)
+
+* Delete an Existing Diary
+  ![delete diary](./img/delete_diary.png)
+
+* Toggle a Diary's Permission
+  ![toggle permission](./img/toggle_diary.png)
+
+* User Profile
+  ![user profile](./img/profile.png)
 
 ## Administration and Evaluation
 
