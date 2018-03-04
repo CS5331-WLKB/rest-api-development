@@ -1,4 +1,4 @@
-# rest-api-development
+# rest-api-development - WLKB :boom:
 
 CS5331 Assignment 1 Project Reference Repository
 
@@ -99,7 +99,7 @@ If a response is received, you're good to go.
 
 **Please replace the details below with information relevant to your team.**
 
-## Screenshots
+## Screenshots :facepunch:
 
 * Register a User
   ![signup](./img/signup.png)
@@ -134,49 +134,66 @@ Please fill out this section with details relevant to your team.
 
 ### Team Members
 
-1.  Wei Ran
-2.  Liu Chao
-3.  Kong Chao
-4.  Bai Xin
+1.  Wei Ran (A0174375X)
+2.  Liu Chao (A0174462A)
+3.  Kong Chao (A0174435A)
+4.  Bai Xin (A0163129H)
 
-### Short Answer Questions
+### Short Answer Questions :pray:
 
 #### Question 1: Briefly describe the web technology stack used in your implementation.
 
-Answer: React + flask + sqlite.
+Answer:
+
+* frontend: react
+* backend with api: flask
+* database: sqlite
 
 #### Question 2: Are there any security considerations your team thought about?
 
-Answer: user input sanitization .
+Answer:
+
+* user input sanitization both in frontend and backend to prevent XSS attack
+* implement ORM on top of database layer to prevent SQL injection
+* add secure cookie in reponse header to prevent XSRF attack
+* implement HTTPs for secure request and apply for SSL Certificate for the server
 
 #### Question 3: Are there any improvements you would make to the API specification to improve the security of the web application?
 
-Answer: <br>
-It would be better to have a basic access authentication. <br>
-User has to provide username and password when making a request for private resources, token alone is not enough.
+Answer:
+
+* Server side should expire token in a short period to prevent token leakage danger
+* Backend can record the request's ip address and check for abnormal request from different locations.
+* Server side should expire user's token when observing massive requests in a short period of time.
 
 #### Question 4: Are there any additional features you would like to highlight?
 
-Answer: .
+Answer:
+
+* Reponsive and modern UI
 
 #### Question 5: Is your web application vulnerable? If yes, how and why? If not, what measures did you take to secure it?
 
-Answer: .
+Answer: To some extend can be considered as secure
+
+* Both frontend and backend sanitize user input before processing the request
+* Server side implments ORM on top of the database to prevent SQL injection.
 
 #### Feedback: Is there any other feedback you would like to give?
 
-Answer: .
+Answer: No, the API docs looks good.
 
-### Declaration
+### Declaration :confetti_ball: :tada: :bell:
 
-#### Please declare your individual contributions to the assignment:
-
-1.  Member 1 Name
-    * Integrated feature x into component y
-    * Implemented z
-2.  Member 2 Name
-    * Wrote the front-end code
-3.  Member 3 Name
-    * Designed the database schema
-4.  Member 4 Name
-    * Implemented x
+1.  Wei Ran
+    * Test the API robustness with edge cases
+    * Test the web security with the possible XSS attack
+2.  Liu Chao
+    * Write the front-end code and test the API functionality
+    * Refine the docker build process
+3.  Kong Chao
+    * Test the API robustness with edge cases
+    * Test the web security with the possible SQL injection attack
+4.  Bai Xin
+    * Design the database schema
+    * Implement the rest API functions
