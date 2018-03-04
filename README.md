@@ -15,11 +15,11 @@ beaten path.
 
 You may be required to modify the following files/directories:
 
-- Dockerfile - contains the environment setup scripts to ensure a homogenous
+* Dockerfile - contains the environment setup scripts to ensure a homogenous
   development environment
-- src/ - contains the front-end code in `html` and the skeleton Flask API code
+* src/ - contains the front-end code in `html` and the skeleton Flask API code
   in `service`
-- img/ - contains images used for this README
+* img/ - contains images used for this README
 
 Assuming you're developing on an Ubuntu 16.04 machine, the quick instructions
 to get up and running are:
@@ -50,6 +50,22 @@ sudo docker run hello-world
 sudo ./run.sh
 ```
 
+```
+# Install Docker Compose
+
+# Run this command to download the latest version of Docker Compose
+
+sudo curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+
+# Apply executable permissions to the binary
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Test the installation
+
+docker-compose --version
+```
+
 (Docker CE installation instructions are from this
 [link](https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-using-the-repository).)
 
@@ -63,8 +79,8 @@ running it. The grading script will interact with your API.
 
 The following ports are expected to be accessible:
 
-1. 80, on which static HTML content, including the front-end, is served.
-2. 8080, on which the API is exposed.
+1.  80, on which static HTML content, including the front-end, is served.
+2.  8080, on which the API is exposed.
 
 To verify this, please run the following commands:
 
@@ -92,17 +108,16 @@ If a response is received, you're good to go.
 ![profile](./img/profile.png)
 ![newdiary](./img/newdiary.png)
 
-
 ## Administration and Evaluation
 
 Please fill out this section with details relevant to your team.
 
 ### Team Members
 
-1. Wei Ran
-2. Liu Chao
-3. Kong Chao
-4. Bai Xin
+1.  Wei Ran
+2.  Liu Chao
+3.  Kong Chao
+4.  Bai Xin
 
 ### Short Answer Questions
 
@@ -136,13 +151,12 @@ Answer: .
 
 #### Please declare your individual contributions to the assignment:
 
-1. Member 1 Name
-    - Integrated feature x into component y
-    - Implemented z
-2. Member 2 Name
-    - Wrote the front-end code
-3. Member 3 Name
-    - Designed the database schema
-4. Member 4 Name
-    - Implemented x
-
+1.  Member 1 Name
+    * Integrated feature x into component y
+    * Implemented z
+2.  Member 2 Name
+    * Wrote the front-end code
+3.  Member 3 Name
+    * Designed the database schema
+4.  Member 4 Name
+    * Implemented x
