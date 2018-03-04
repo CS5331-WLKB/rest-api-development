@@ -68,6 +68,8 @@ function diary(
       return Object.assign({}, state, {
         public: !state.public
       });
+    default:
+      return state;
   }
 }
 

@@ -57,11 +57,12 @@ class NewDiary extends Component {
       )
         .then(() => {
           this.setMessage('New Diary created successfully');
+          this.setState({
+            isLoading: false
+          });
         })
         .catch(error => {
           this.setError(error);
-        })
-        .finally(() => {
           this.setState({
             isLoading: false
           });

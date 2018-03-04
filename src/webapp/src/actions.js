@@ -59,6 +59,8 @@ function requestItems(type, isFetching = true) {
       return requestPublicDiaires(isFetching);
     case 'my-diaries':
       return requestMyDiaries(isFetching);
+    default:
+      break;
   }
 }
 
@@ -69,6 +71,8 @@ function receiveItems(type, items) {
     case 'public-diaries':
     case 'my-diaries':
       return receiveDiaries(items);
+    default:
+      break;
   }
 }
 
@@ -80,6 +84,8 @@ function getUrl(type) {
       return API_Endpoints.get_public_diaries;
     case 'my-diaries':
       return API_Endpoints.get_my_diaries;
+    default:
+      break;
   }
 }
 
@@ -93,8 +99,11 @@ export function fetchItems(type) {
       promise = ajax_get(getUrl(type));
     }
     return promise
-      .then(data => dispatch(receiveItems(type, data)))
-      .finally(() => {
+      .then(data => {
+        dispatch(receiveItems(type, data));
+        dispatch(requestItems(type, false));
+      })
+      .catch(() => {
         dispatch(requestItems(type, false));
       });
   };
@@ -153,11 +162,10 @@ function fetchUser({ username, password }, dispatch) {
       .then(data => {
         sessionStorage.setItem('account', JSON.stringify(data));
         dispatch(receiveUser(data));
+        dispatch(requestUser(false));
       })
       .catch(error => {
         dispatch(handleAuthErr(error));
-      })
-      .finally(() => {
         dispatch(requestUser(false));
       });
   }
@@ -180,7 +188,7 @@ export function logout() {
       .catch(error => {
         dispatch(handleAuthErr(error));
       })
-      .finally(() => {
+      .then(() => {
         // remove all session data
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('account');

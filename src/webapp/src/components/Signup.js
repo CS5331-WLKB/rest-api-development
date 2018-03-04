@@ -58,11 +58,12 @@ class Signup extends Component {
       })
         .then(() => {
           this.setMessage('Account created successfully');
+          this.setState({
+            isLoading: false
+          });
         })
         .catch(error => {
           this.setError(error);
-        })
-        .finally(() => {
           this.setState({
             isLoading: false
           });
