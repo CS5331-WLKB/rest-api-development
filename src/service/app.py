@@ -2,7 +2,7 @@
 
 from flask import Flask, request, jsonify, abort, g
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from flask_cors import CORS
 import json
 import os
@@ -17,8 +17,8 @@ auth = HTTPBasicAuth()
 # Build database connection
 engine = create_engine('sqlite:///secretdiary.db')
 Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+
+session = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 # Enable cross origin sharing for all endpoints
@@ -28,6 +28,10 @@ CORS(app)
 ENDPOINT_LIST = ['/', '/meta/heartbeat', '/meta/members','/users/register',
                  '/users/expire','/users/authenticate','/users','/diary (get)','/diary(post)',
                  '/diary/create','/diary/delete','/diary/permission']
+
+@app.teardown_request
+def remove_session(ex=None):
+    session.remove()
 
 def verify_password(username, password):
     user = session.query(User).filter_by(username=username).first()
@@ -118,12 +122,12 @@ def get_secret_diary():
         diaryList_serialized = [d.serialize for d in diaryList.all()]
         return jsonify({'status': True, 'result':diaryList_serialized}), 201
     return jsonify({'status': False, 'error': 'Invalid authentication token.'}), 200
-    
+
 @app.route('/diary', methods=['GET','POST'])
 def get_diary():
     if request.method == 'GET':
         diaryList = session.query(Diary).filter_by(public=True)
-        diaryList_serialized = [d.serialize for d in diaryList.all()]            
+        diaryList_serialized = [d.serialize for d in diaryList.all()]
         return jsonify({'status': True,'result':diaryList_serialized }),200
     else:
         return get_secret_diary()
